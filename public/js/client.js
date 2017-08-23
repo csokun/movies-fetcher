@@ -52,7 +52,7 @@ window.onload = function () {
     
     function _showDetail(movie) {
         $(`#${movie.ID} .description`).html(`
-            <p>${movie.Plot}</p>
+            <p>${movie.Plot || ''}</p>
         `);
     }
 
