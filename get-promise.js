@@ -12,24 +12,34 @@ function _get (path, defaultValue = null, retry, callback) {
     let options = {
         host: config.host,
         path: `${config.baseUrl}/${path}`,
-        headers: config.headers
+        headers: config.headers,
+        timeout: 1000
     };
 
-    let get = http.get(options, (response) => {
-        const { statusCode } = response;
-        
-        if (statusCode !== 200) {
-            console.error(`GET: ${options.path} - ${statusCode}`);
-            response.resume();
+    function retry (reason) {
+        let retryMessage = retry > 0 ? ` (retry in ${config.backoff})`: '';
+        console.error(`${reason || ''}${retryMessage}`);
 
-            if (retry === 0){
-                callback(null, defaultValue);
-                return;   
-            }
-            setTimeout(function () {
-                _get(path, defaultValue, --retry, callback);
-            }, config.backoff);
-            
+        if (retry === 0){
+            callback(null, defaultValue);
+            return;   
+        }
+
+        setTimeout(function () {
+            _get(path, defaultValue, --retry, callback);
+        }, config.backoff);
+    }
+
+    http.get(options, (response) => {
+        const { statusCode } = response;
+        if (statusCode === 404) {
+            response.resume();
+            callback(null, defaultValue);
+            return;
+        }
+        if (statusCode !== 200) {
+            response.resume();
+            retry(`GET: ${options.path} - ${statusCode}`);
             return;
         }
 
@@ -44,20 +54,8 @@ function _get (path, defaultValue = null, retry, callback) {
         });
 
     }).on("error", (err) => {
-        let retryMessage = retry > 0 ? ` (retry in ${config.backoff})`: '';
-        console.error(`GET: ${options.path} - ${err.code}${retryMessage}`);
-
-        if (retry === 0) {
-            callback(null, defaultValue);
-            return;
-        }
-
-        setTimeout(function () {
-            _get(path, defaultValue, --retry, callback)
-        }, config.backoff);
+        retry(`GET: ${options.path} - ${err.code}`);
     });
-    
-    get.end();
 
 };
 
