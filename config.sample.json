@@ -1,0 +1,9 @@
+{
+    "host": "www.example.com",
+    "baseUrl": "/api",
+    "backoff": 1000,
+    "timeout": 1000,
+    "headers": {
+        "x-access-token": "access-token" 
+    }
+}

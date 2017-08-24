@@ -8,13 +8,14 @@ const util = require('util');
  * @param {object} defaultValue if error occur
  * @param {number} retry 
  */
-function _get (path, defaultValue = null, retry, callback) {
+function Get (path, defaultValue = null, retry, callback) {
     let options = {
         host: config.host,
         path: `${config.baseUrl}/${path}`,
-        headers: config.headers,
-        timeout: 1000
+        headers: config.headers
     };
+    
+    let timeoutExp = false;
 
     function retry (reason) {
         let retryMessage = retry > 0 ? ` (retry in ${config.backoff})`: '';
@@ -26,11 +27,11 @@ function _get (path, defaultValue = null, retry, callback) {
         }
 
         setTimeout(function () {
-            _get(path, defaultValue, --retry, callback);
+            Get(path, defaultValue, --retry, callback);
         }, config.backoff);
     }
 
-    http.get(options, (response) => {
+    let request = http.get(options, (response) => {
         const { statusCode } = response;
         if (statusCode === 404) {
             response.resume();
@@ -54,9 +55,18 @@ function _get (path, defaultValue = null, retry, callback) {
         });
 
     }).on("error", (err) => {
-        retry(`GET: ${options.path} - ${err.code}`);
+        if (timeoutExp) {
+            retry(`GET: ${options.path} - ${err.code} - Timeout`);
+            timeoutExp = false;
+            return;
+        }
+        console.error(err.message);
     });
 
+    request.setTimeout(config.timeout, () => {
+        timeoutExp = true;
+        request.abort();
+    });
 };
 
-module.exports = util.promisify(_get);
+module.exports = util.promisify(Get);
