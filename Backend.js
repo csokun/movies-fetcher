@@ -18,7 +18,7 @@ class MovieService {
     getMovies () {
         let self = this;
         let promises = self.PROVIDERS.map((provider) => {
-            return GET(`${provider.name}/movies`, [], config.retry)
+            return GET(`${provider.name}/movies`, [], config.get('retry'))
                 .then(response => {
                     let movies = response.Movies || [];                    
                     // clean movie ids
@@ -45,7 +45,7 @@ class MovieService {
 
     getMovie (movieId) {
         let promises = this.PROVIDERS.map((provider) => {
-            return GET(`${provider.name}/movie/${provider.shortName}${movieId}`, null, config.retry);
+            return GET(`${provider.name}/movie/${provider.shortName}${movieId}`, null, config.get('retry'));
         });
 
         // always return two object instances
@@ -62,6 +62,7 @@ class MovieService {
                     });
 
                     delete instance.ID;
+                    delete instance.Price;
                     Object.assign(movie, instance);
                 });
             return movie;

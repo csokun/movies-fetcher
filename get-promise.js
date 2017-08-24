@@ -10,30 +10,17 @@ const util = require('util');
  */
 function Get (path, defaultValue = null, retry, callback) {
     let options = {
-        host: config.host,
-        path: `${config.baseUrl}/${path}`,
-        headers: config.headers
+        host: config.get('host'),
+        path: `${config.get('baseUrl')}/${path}`,
+        headers: config.get('headers')
     };
     
     let timeoutExp = false;
 
-    function retry (reason) {
-        let retryMessage = retry > 0 ? ` (retry in ${config.backoff})`: '';
-        console.error(`${reason || ''}${retryMessage}`);
-
-        if (retry === 0){
-            callback(null, defaultValue);
-            return;   
-        }
-
-        setTimeout(function () {
-            Get(path, defaultValue, --retry, callback);
-        }, config.backoff);
-    }
-
     let request = http.get(options, (response) => {
         const { statusCode } = response;
         if (statusCode === 404) {
+            console.log(`GET ${options.path} - ${statusCode}`);
             response.resume();
             callback(null, defaultValue);
             return;
@@ -63,10 +50,29 @@ function Get (path, defaultValue = null, retry, callback) {
         console.error(err.message);
     });
 
-    request.setTimeout(config.timeout, () => {
+    request.setTimeout(config.get('timeout'), () => {
         timeoutExp = true;
         request.abort();
     });
+
+    /**
+     * A closure function to retry failed request
+     * @param {string} reason 
+     */
+    function retry (reason) {
+        let backoff = config.get('backoff');
+        let retryMessage = retry > 0 ? ` (retry in ${backoff})`: '';
+        console.error(`${reason || ''}${retryMessage}`);
+
+        if (retry === 0){
+            callback(null, defaultValue);
+            return;   
+        }
+
+        setTimeout(function () {
+            Get(path, defaultValue, --retry, callback);
+        }, backoff);
+    }
 };
 
 module.exports = util.promisify(Get);

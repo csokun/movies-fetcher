@@ -4,4 +4,4 @@ const socket = require('../socket');
 
 app.set('port', process.env.PORT || 3000);
 
-socket.use(app.listen(app.get('port')), app.get('EventHandler'));
+socket.use(app.listen(app.get('port')));

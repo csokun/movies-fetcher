@@ -32,7 +32,7 @@ Based-on the observation above. I decided to deal with the backend as follow:
 ## Not Implemented
 
 * Client & Server cache - small resources & refreshness info was not told
-* Overthinking features, because who care? customer wanted to have a reliable system that can tell them what is the cheapest movie ticket price and where.
+* Others overthinking features, because who care? customer wanted to have a reliable system that can tell them what is the cheapest movie ticket price and where.
 
 After all, it's a great fun to play with the cheecky API :smiling_imp: :sparkles: unless someone wanted to put the blame on Micro$oft IIS :laughing:
 
