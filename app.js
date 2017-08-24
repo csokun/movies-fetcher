@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = new express();
 const path = require('path');
-const EventHandler = require('./EventHandler');
 
 // middlewares
 app.use(express.static('public'));
@@ -11,11 +10,8 @@ app.disable('x-powered-by');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// setup evironment
-app.set('EventHandler', EventHandler);
-
 // api
-app.use('/api', require('./routes')(EventHandler));
+app.use('/api', require('./routes'));
 
 // default page (SPA)
 app.all('/', (req, res, next) => {

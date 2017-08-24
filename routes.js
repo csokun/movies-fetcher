@@ -2,7 +2,7 @@ const routes = require('express').Router();
 const Backend = require('./Backend');
 const service = new Backend();
 
-module.exports = (EventHandler) => {
+module.exports = () => {
     
     routes.get('/movies', (req, res, next) => {
         service.getMovies()
@@ -12,8 +12,8 @@ module.exports = (EventHandler) => {
     
     routes.get('/movie/:id', (req, res, next) => {
         service.getMovie(req.params.id)
-        .then(movie => res.json(movie))
-        .catch(next);
+            .then(movie => res.json(movie))
+            .catch(next);
     });
 
     return routes;

@@ -1,9 +1,9 @@
 const GET = require('./get-promise');
+const config = require('./config');
 
 class MovieService {
 
-    constructor(eventHandler) { 
-        this.eventHandler = eventHandler;
+    constructor() { 
         this.PROVIDERS = [{
             name: 'cinemaworld', 
             properName: 'Cinema World',
@@ -15,25 +15,16 @@ class MovieService {
         }];
     }
     
-    getMovies (clientId = null) {
+    getMovies () {
         let self = this;
         let promises = self.PROVIDERS.map((provider) => {
-            return GET(`${provider.name}/movies`, [], 1)
+            return GET(`${provider.name}/movies`, [], config.retry)
                 .then(response => {
                     let movies = response.Movies || [];                    
                     // clean movie ids
                     movies.forEach(movie => {
                         movie.ID = movie.ID.replace(/cw|fw/g, '');
                     });
-
-                    if (!!clientId && !!self.eventHandler) {
-                        self.eventHandler.emit(self.eventHandler.TYPES.MOVIES_RECEIVED, {
-                            provider,
-                            clientId,
-                            movies
-                        });
-                    }
-                    
                     return movies;
                 });
         });
@@ -54,7 +45,7 @@ class MovieService {
 
     getMovie (movieId) {
         let promises = this.PROVIDERS.map((provider) => {
-            return GET(`${provider.name}/movie/${provider.shortName}${movieId}`, null, 1);
+            return GET(`${provider.name}/movie/${provider.shortName}${movieId}`, null, config.retry);
         });
 
         // always return two object instances

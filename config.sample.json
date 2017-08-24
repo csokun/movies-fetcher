@@ -3,6 +3,7 @@
     "baseUrl": "/api",
     "backoff": 1000,
     "timeout": 1000,
+    "retry": 1,
     "headers": {
         "x-access-token": "access-token" 
     }
