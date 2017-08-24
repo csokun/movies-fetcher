@@ -64,9 +64,10 @@ class MovieService {
             let movie = { ID: movieId, Prices: [] };
             (results || []).filter(instance => !!instance)
                 .forEach(instance => {
+                    let provider = this.PROVIDERS.find(p => instance.ID.startsWith(p.shortName));
                     movie.Prices.push({
                         price: instance.Price,
-                        provider: instance.ID.replace(movieId, '')
+                        cinema: provider.shortName 
                     });
 
                     delete instance.ID;

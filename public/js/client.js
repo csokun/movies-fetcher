@@ -51,9 +51,32 @@ window.onload = function () {
     }
     
     function _showDetail(movie) {
-        $(`#${movie.ID} .description`).html(`
-            <p>${movie.Plot || ''}</p>
-        `);
+        let prices = (movie.Prices || []),
+            priceTpl = '';
+        
+        if (prices.length > 0) {
+            prices.sort((a, b) => {
+                return a.price - b.price;
+            });
+
+            let saved = (prices.length > 1) 
+                ? (prices[1].price - prices[0].price).toFixed(2)
+                : 0;
+
+            let source = prices[0]; // always the cheapest one!
+            priceTpl = `
+                <div class="extra content">
+                    ${saved ? `<span class="right floated">Saved $${saved}</span>`: ''}
+                    <span>
+                    <i class="ticket icon"></i>
+                    $${source.price} @${source.cinema.toUpperCase()}
+                    </span>
+                </div>
+                `;
+        }
+
+        $(`#${movie.ID} .description`).html(`<p>Saved $${movie.Plot || ''}</p>`);
+        if (!!priceTpl) $(`#${movie.ID}`).append(priceTpl);
     }
 
 }
