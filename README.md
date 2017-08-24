@@ -41,7 +41,10 @@ After all, it's a great fun to play with the cheecky API :smiling_imp: :sparkles
 
 ## Development 
 
-Copy `config.sample.json` to `config.dev.json` and update the details configuration.
+1) Copy/Rename `config.sample.json` to `config.dev.json` and update the details configuration.
+2) Restore node packages `npm i`
+3) Test `npm test`
+4) Start `npm start` default port :3000
 
 ## Deployment
 
